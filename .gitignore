@@ -9,8 +9,11 @@ dist/
 .env.local
 .env.*.local
 
-# Prisma generated
-prisma/migrations/**/*.sql.bak
+# PostgreSQL data volume (Docker)
+postgres/
+pgdata/
+pg_data/
+data/postgres/
 
 # Logs
 *.log
