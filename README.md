@@ -1,98 +1,210 @@
-<p align="center">
-  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="120" alt="Nest Logo" /></a>
-</p>
+# Ecommerce API
 
-[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
-[circleci-url]: https://circleci.com/gh/nestjs/nest
+REST API for a Tesla-style e-commerce store built with **NestJS**, **Prisma**, and **PostgreSQL**. Includes JWT authentication, PayPal payment verification, and full Swagger documentation.
 
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
-    <p align="center">
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
-<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
-<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg" alt="Donate us"/></a>
-    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow" alt="Follow us on Twitter"></a>
-</p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
+---
 
-## Description
+## Prerequisites
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+| Tool | Version |
+|------|---------|
+| [Node.js](https://nodejs.org) | 20 or higher |
+| [npm](https://www.npmjs.com) | 10 or higher |
+| [Docker](https://www.docker.com) | 24 or higher |
+| [Docker Compose](https://docs.docker.com/compose) | v2 (bundled with Docker Desktop) |
+| [Git](https://git-scm.com) | any |
 
-## Project setup
+---
+
+## 1. Clone the repository
 
 ```bash
-$ npm install
+git clone <repository-url>
+cd ecommerce-api
 ```
 
-## Compile and run the project
+---
+
+## 2. Configure environment variables
 
 ```bash
-# development
-$ npm run start
-
-# watch mode
-$ npm run start:dev
-
-# production mode
-$ npm run start:prod
+cp .env.template .env
 ```
 
-## Run tests
+Open `.env` and fill in the values:
+
+```env
+# Database connection (must match the Docker service credentials below)
+DATABASE_URL="postgresql://postgres:your_password@localhost:5437/ecommerce_api?schema=public"
+PORT=3001
+
+# Docker Postgres credentials
+DB_USER=postgres
+DB_PASSWORD=your_password
+DB_NAME=ecommerce_api
+
+# JWT — generate a strong secret:
+# node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"
+JWT_SECRET=your_32_char_secret_here
+
+# PayPal sandbox (optional — only needed for payment verification)
+PAYPAL_CLIENT_ID=
+PAYPAL_SECRET=
+PAYPAL_OAUTH_URL=https://api-m.sandbox.paypal.com/v1/oauth2/token
+PAYPAL_ORDERS_URL=https://api-m.sandbox.paypal.com/v2/checkout/orders
+
+# CORS — origins allowed to call the API
+ALLOWED_ORIGINS=http://localhost:3000,http://localhost:3002
+```
+
+---
+
+## Option A — Local development (Node + Docker for the database)
+
+### 3A. Start PostgreSQL
 
 ```bash
-# unit tests
-$ npm run test
-
-# e2e tests
-$ npm run test:e2e
-
-# test coverage
-$ npm run test:cov
+docker compose up postgres-ecommerce -d
 ```
 
-## Deployment
-
-When you're ready to deploy your NestJS application to production, there are some key steps you can take to ensure it runs as efficiently as possible. Check out the [deployment documentation](https://docs.nestjs.com/deployment) for more information.
-
-If you are looking for a cloud-based platform to deploy your NestJS application, check out [Mau](https://mau.nestjs.com), our official platform for deploying NestJS applications on AWS. Mau makes deployment straightforward and fast, requiring just a few simple steps:
+### 4A. Install dependencies
 
 ```bash
-$ npm install -g @nestjs/mau
-$ mau deploy
+npm install
 ```
 
-With Mau, you can deploy your application in just a few clicks, allowing you to focus on building features rather than managing infrastructure.
+### 5A. Run database migrations
 
-## Resources
+```bash
+npx prisma migrate deploy
+```
 
-Check out a few resources that may come in handy when working with NestJS:
+### 6A. Seed the database
 
-- Visit the [NestJS Documentation](https://docs.nestjs.com) to learn more about the framework.
-- For questions and support, please visit our [Discord channel](https://discord.gg/G7Qnnhy).
-- To dive deeper and get more hands-on experience, check out our official video [courses](https://courses.nestjs.com/).
-- Deploy your application to AWS with the help of [NestJS Mau](https://mau.nestjs.com) in just a few clicks.
-- Visualize your application graph and interact with the NestJS application in real-time using [NestJS Devtools](https://devtools.nestjs.com).
-- Need help with your project (part-time to full-time)? Check out our official [enterprise support](https://enterprise.nestjs.com).
-- To stay in the loop and get updates, follow us on [X](https://x.com/nestframework) and [LinkedIn](https://linkedin.com/company/nestjs).
-- Looking for a job, or have a job to offer? Check out our official [Jobs board](https://jobs.nestjs.com).
+```bash
+npm run seed
+```
 
-## Support
+This creates product categories, 35+ products with images, and three default users:
 
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
+| Email | Password | Role |
+|-------|----------|------|
+| admin1@example.com | Admin1Pass! | admin |
+| admin2@example.com | Admin2Pass! | admin |
+| user1@example.com | User1Pass! | user |
 
-## Stay in touch
+### 7A. Start the development server
 
-- Author - [Kamil Myśliwiec](https://twitter.com/kammysliwiec)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
+```bash
+npm run start:dev
+```
 
-## License
+The API will be available at **http://localhost:3001**  
+Swagger documentation: **http://localhost:3001/api**
 
-Nest is [MIT licensed](https://github.com/nestjs/nest/blob/master/LICENSE).
+---
+
+## Option B — Full stack with Docker (database + API in containers)
+
+### 3B. Build and start all services
+
+```bash
+docker compose up --build -d
+```
+
+### 4B. Run the seed inside the API container
+
+```bash
+docker compose exec api npx ts-node --compiler-options '{"module":"CommonJS"}' prisma/seed.ts
+```
+
+The API will be available at **http://localhost:3001**  
+Swagger documentation: **http://localhost:3001/api**
+
+### Stop all services
+
+```bash
+docker compose down
+```
+
+To also delete the database volume:
+
+```bash
+docker compose down -v
+rm -rf ./postgres
+```
+
+---
+
+## Available scripts
+
+```bash
+npm run start:dev     # Development with hot-reload
+npm run start:prod    # Production (requires a build first)
+npm run build         # Compile TypeScript to dist/
+
+npm run test          # Unit tests (Jest)
+npm run test:e2e      # Integration tests (Supertest)
+npm run test:cov      # Unit tests with coverage report
+
+npx prisma studio     # Open Prisma Studio (visual DB browser)
+npx prisma migrate dev --name <name>   # Create a new migration
+```
+
+---
+
+## Project structure
+
+```
+src/
+├── auth/           # JWT authentication (login, register, profile)
+├── categories/     # Product categories
+├── countries/      # Country catalog
+├── order-addresses/# Shipping addresses linked to orders
+├── order-items/    # Items within an order
+├── orders/         # Order management + place-order transaction
+├── payments/       # PayPal payment verification
+├── prisma/         # PrismaService (global module)
+├── product-images/ # Product image management
+├── products/       # Product catalog with pagination and gender filter
+├── user-addresses/ # User shipping address (upsert by userId)
+├── users/          # User management
+└── main.ts         # Bootstrap with ValidationPipe, CORS, Swagger
+prisma/
+├── schema.prisma   # Database schema
+└── seed.ts         # Seed script
+```
+
+---
+
+## API overview
+
+All endpoints are documented in Swagger at `/api`. Protected endpoints require a Bearer JWT obtained from `POST /auth/login`.
+
+| Module | Base path |
+|--------|-----------|
+| Auth | `/auth` |
+| Products | `/products` |
+| Orders | `/orders` |
+| Payments | `/payments/paypal/verify` |
+| Users | `/users` |
+| Categories | `/categories` |
+| Countries | `/countries` |
+| User addresses | `/user-addresses` |
+
+---
+
+## Running tests
+
+```bash
+# Unit tests
+npm run test
+
+# Integration tests (no database required — Prisma is mocked)
+npm run test:e2e
+
+# Coverage report → coverage/index.html
+npm run test:cov
+```
+
+Coverage target: **80%+ line coverage**.
