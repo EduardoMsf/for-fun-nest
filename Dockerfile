@@ -30,6 +30,9 @@ COPY --from=builder /app/prisma       ./prisma
 COPY docker-entrypoint.sh ./docker-entrypoint.sh
 RUN chmod +x docker-entrypoint.sh
 
+RUN addgroup -S appgroup && adduser -S appuser -G appgroup
+USER appuser
+
 EXPOSE 3001
 
 ENTRYPOINT ["./docker-entrypoint.sh"]

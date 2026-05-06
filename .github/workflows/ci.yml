@@ -1,0 +1,39 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  test-build-docker:
+    name: Test, Build & Docker
+    runs-on: ubuntu-latest
+
+    env:
+      DATABASE_URL: postgresql://ci:ci@localhost:5432/ci?schema=public
+      JWT_SECRET: ci-jwt-secret
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Generate Prisma client
+        run: npx prisma generate
+
+      - name: Run tests
+        run: npm run test
+
+      - name: Build
+        run: npm run build
+
+      - name: Build Docker image
+        run: docker build -t ecommerce-api:${{ github.sha }} .
